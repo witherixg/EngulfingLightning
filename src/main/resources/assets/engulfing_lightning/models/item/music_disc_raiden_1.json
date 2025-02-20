@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "engulfing_lightning:item/music_disc_raiden_1"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "music_disc.raiden_1": {
+    "sounds": [
+      {
+        "name": "engulfing_lightning:records/raiden_1",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.raiden_2": {
+    "sounds": [
+      {
+        "name": "engulfing_lightning:records/raiden_2",
+        "stream": true
+      }
+    ]
+  }
+}

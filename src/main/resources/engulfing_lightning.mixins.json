@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "top.wither_ixg.engulfing_lightning.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "engulfing_lightning.refmap.json",
+  "mixins": [
+    "LightningBoltMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
