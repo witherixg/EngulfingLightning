@@ -84,7 +84,7 @@ public class EngulfingLightningItem extends SwordItem {
         int enchantmentLevel = player.getItemInHand(hand).getEnchantmentLevel(Enchantments.SHARPNESS);
         float maxHealth = (float) Objects.requireNonNull(((LivingEntity) entity).getAttribute(Attributes.MAX_HEALTH)).getValue();
         int randInt = random.nextInt(5);
-        lightning.setDamage(max(base + 2 * enchantmentLevel, (enchantmentLevel > randInt ? maxHealth / 3.0f : maxHealth / 6.0f)));
+        lightning.setDamage(max(base + enchantmentLevel, (enchantmentLevel > randInt ? maxHealth / 3.0f : maxHealth / 6.0f)));
 
         lightning.moveTo(entity.getX(), entity.getY(), entity.getZ());
         lightning.setCause((ServerPlayer) player);
