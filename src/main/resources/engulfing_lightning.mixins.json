@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "engulfing_lightning.refmap.json",
   "mixins": [
+    "EntityMixin",
     "LightningBoltMixin"
   ],
   "client": [

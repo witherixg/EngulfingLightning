@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.List;
 
 import static net.minecraft.world.item.Items.NETHERITE_SWORD;
-import static top.wither_ixg.engulfing_lightning.Main.LOGGER;
+import static top.wither_ixg.engulfing_lightning.Main.*;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeEventHandler {
@@ -32,14 +32,14 @@ public class ForgeEventHandler {
         // Get nearby items
         List<ItemEntity> items = level.getEntitiesOfClass(
                 ItemEntity.class,
-                new AABB(entity.getX() - 2, entity.getY() - 2, entity.getZ() - 2,
-                        entity.getX() + 2, entity.getY() + 2, entity.getZ() + 2)
+                new AABB(entity.getX() - 1, entity.getY() - 1, entity.getZ() - 1,
+                        entity.getX() + 1, entity.getY() + 1, entity.getZ() + 1)
         );
 
         items.stream().filter(itemEntity -> itemEntity.getItem().is(NETHERITE_SWORD))
                 .forEach(itemEntity -> {
                     // netherite_sword -> engulfing_lightning
-                    convert(itemEntity, Main.ENGULFING_LIGHTNING_ITEM.get());
+                    convert(itemEntity, ENGULFING_LIGHTNING_ITEM.get());
                 });
 
         items.stream().filter(itemEntity -> itemEntity.getItem().getItem() instanceof RecordItem)
@@ -47,10 +47,10 @@ public class ForgeEventHandler {
                     Item item = itemEntity.getItem().getItem();
                     if (!(item instanceof RaidenRecordItem)) {
                         // disc -> raiden_1
-                        convert(itemEntity, Main.MUSIC_DISC_RAIDEN_1_ITEM.get());
+                        convert(itemEntity, MUSIC_DISC_RAIDEN_1_ITEM.get());
                     } else {
                         // raiden_1 -> raiden_2
-                        convert(itemEntity, Main.MUSIC_DISC_RAIDEN_2_ITEM.get());
+                        convert(itemEntity, MUSIC_DISC_RAIDEN_2_ITEM.get());
                     }
                 });
     }

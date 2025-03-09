@@ -6,6 +6,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.item.context.UseOnContext;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
@@ -20,7 +21,7 @@ public class RaidenRecordItem extends RecordItem {
     }
 
     @Override
-    public InteractionResult useOn(UseOnContext p_43048_) {
+    public @NotNull InteractionResult useOn(@NotNull UseOnContext p_43048_) {
         InteractionResult result = super.useOn(p_43048_);
         Main.LOGGER.info("useOn!");
         return result;

@@ -1,15 +1,11 @@
 package top.wither_ixg.engulfing_lightning;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LightningBolt;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
@@ -17,22 +13,23 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseFireBlock;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.FireBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.Tags;
+import net.minecraftforge.event.ForgeEventFactory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import static java.lang.Math.*;
+import static net.minecraft.world.item.enchantment.Enchantments.*;
 import static top.wither_ixg.engulfing_lightning.Main.LOGGER;
 
 
 public class EngulfingLightningItem extends SwordItem {
 
     private static final Random random = new Random();
+
+    public static final String LIGHTNING_TAG = "fromEngulfingLightning";
 
     public EngulfingLightningItem() {
         super(Tiers.NETHERITE, 3, -2.4F,
@@ -48,17 +45,33 @@ public class EngulfingLightningItem extends SwordItem {
 
         // Get Entities
         ServerLevel serverLevel = (ServerLevel) level;
-        List<Entity> entities = new ArrayList<>();
-        serverLevel.getAllEntities().forEach(entities::add);
-        entities.sort(Comparator.comparingDouble(entity -> entity.distanceTo(player)));
+        List<Entity> allEntities = new ArrayList<>();
+        serverLevel.getAllEntities().forEach(allEntities::add);
+        allEntities.sort(Comparator.comparingDouble(entity -> entity.distanceTo(player)));
 
-        entities.stream()
+        int knockBackLevel = getEnchantmentLevel(player, hand, KNOCKBACK);
+        int sweepingLevel = getEnchantmentLevel(player, hand, SWEEPING_EDGE);
+        int unbreakingLevel = getEnchantmentLevel(player, hand, UNBREAKING);
+        AtomicInteger counter = new AtomicInteger(1);
+
+        List<Entity> damageEntities = allEntities.stream()
                 .filter(entity -> entity instanceof Enemy)
+                .filter(entity -> entity instanceof LivingEntity)
                 .filter(Entity::isAlive)
-                .filter(entity -> entity.distanceTo(player) < 30)
-                .limit(10).forEach(entity ->
-                        summonLightning(serverLevel, player, entity, hand)
-                );
+                .filter(entity -> entity.distanceTo(player) < (30 + 15 * knockBackLevel))
+                .limit(10L * (1 + sweepingLevel)).toList();
+
+        damageEntities.forEach(
+                entity -> summonLightning(serverLevel, player, entity, hand)
+        );
+
+        int damageValue = damageEntities.size() / (unbreakingLevel + 1);
+
+        // Damage the item
+        stack.hurtAndBreak(damageValue, player,
+                p -> p.broadcastBreakEvent(EquipmentSlot.MAINHAND)
+        );
+
         player.getCooldowns().addCooldown(this, 10);
         LOGGER.debug("on use!");
         return InteractionResultHolder.pass(stack);
@@ -77,20 +90,28 @@ public class EngulfingLightningItem extends SwordItem {
         return InteractionResult.PASS;
     }
 
-    public static void summonLightning(@NotNull ServerLevel level, @NotNull Player player, @NotNull Entity entity, @NotNull InteractionHand hand) {
+    private static void summonLightning(@NotNull ServerLevel level, @NotNull Player player, @NotNull Entity entity, @NotNull InteractionHand hand) {
 
         LightningBolt lightning = new LightningBolt(EntityType.LIGHTNING_BOLT, level);
-        float base = lightning.getDamage();
-        int enchantmentLevel = player.getItemInHand(hand).getEnchantmentLevel(Enchantments.SHARPNESS);
+        float base = 5.0F;
+        int enchantmentLevel = getEnchantmentLevel(player, hand, SHARPNESS);
         float maxHealth = (float) Objects.requireNonNull(((LivingEntity) entity).getAttribute(Attributes.MAX_HEALTH)).getValue();
         int randInt = random.nextInt(5);
-        lightning.setDamage(max(base + enchantmentLevel, (enchantmentLevel > randInt ? maxHealth / 3.0f : maxHealth / 6.0f)));
+        float damage = max(2 * (base + enchantmentLevel), (enchantmentLevel > randInt ? maxHealth / 3.0f : maxHealth / 6.0f));
+        // Clear lightning damage
+        lightning.setDamage(0);
+        // Considered as player damage
+        entity.hurt(player.damageSources().playerAttack(player), damage);
 
         lightning.moveTo(entity.getX(), entity.getY(), entity.getZ());
         lightning.setCause((ServerPlayer) player);
-        lightning.addTag("fromEngulfingLightning");
+        lightning.addTag(LIGHTNING_TAG);
         level.addFreshEntity(lightning);
 
         LOGGER.debug("Summoned lightning bolt at: {}", entity.getName());
+    }
+
+    private static int getEnchantmentLevel(Player player, InteractionHand hand, Enchantment enchantment) {
+        return player.getItemInHand(hand).getEnchantmentLevel(enchantment);
     }
 }
