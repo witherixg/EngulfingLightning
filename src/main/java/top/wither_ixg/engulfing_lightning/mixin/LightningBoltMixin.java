@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static top.wither_ixg.engulfing_lightning.EngulfingLightningItem.LIGHTNING_TAG;
+import static top.wither_ixg.engulfing_lightning.items.EngulfingLightningItem.LIGHTNING_TAG;
 
 @Mixin(LightningBolt.class)
 public class LightningBoltMixin {

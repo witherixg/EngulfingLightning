@@ -1,14 +1,19 @@
-package top.wither_ixg.engulfing_lightning;
+package top.wither_ixg.engulfing_lightning.items;
 
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.item.context.UseOnContext;
 import org.jetbrains.annotations.NotNull;
+import top.wither_ixg.engulfing_lightning.Main;
 
 import java.util.function.Supplier;
+
+import static top.wither_ixg.engulfing_lightning.event_handler.mod.CreativeTabHandler.add;
+
 
 public class RaidenRecordItem extends RecordItem {
 
@@ -17,13 +22,6 @@ public class RaidenRecordItem extends RecordItem {
                 soundSupplier,
                 new Item.Properties().rarity(Rarity.RARE).stacksTo(1),
                 lengthInTicks);
-
-    }
-
-    @Override
-    public @NotNull InteractionResult useOn(@NotNull UseOnContext p_43048_) {
-        InteractionResult result = super.useOn(p_43048_);
-        Main.LOGGER.info("useOn!");
-        return result;
+        add(CreativeModeTabs.TOOLS_AND_UTILITIES, this);
     }
 }

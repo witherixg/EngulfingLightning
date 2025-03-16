@@ -1,4 +1,4 @@
-package top.wither_ixg.engulfing_lightning;
+package top.wither_ixg.engulfing_lightning.items;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,18 +11,16 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.event.ForgeEventFactory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 import static java.lang.Math.*;
+import static net.minecraft.world.item.CreativeModeTabs.COMBAT;
 import static net.minecraft.world.item.enchantment.Enchantments.*;
 import static top.wither_ixg.engulfing_lightning.Main.LOGGER;
+import static top.wither_ixg.engulfing_lightning.event_handler.mod.CreativeTabHandler.add;
 
 
 public class EngulfingLightningItem extends SwordItem {
@@ -30,11 +28,14 @@ public class EngulfingLightningItem extends SwordItem {
     private static final Random random = new Random();
 
     public static final String LIGHTNING_TAG = "fromEngulfingLightning";
+    public static final String HURT_TAG = "hurtByEngulfingLightning";
+
+//    public static final String HURT_TAG = "hurtByEngulfingLightning";
 
     public EngulfingLightningItem() {
         super(Tiers.NETHERITE, 3, -2.4F,
                 (new Properties()).fireResistant().rarity(Rarity.EPIC));
-
+        add(COMBAT, this);
     }
 
     @Override
@@ -51,25 +52,20 @@ public class EngulfingLightningItem extends SwordItem {
 
         int knockBackLevel = getEnchantmentLevel(player, hand, KNOCKBACK);
         int sweepingLevel = getEnchantmentLevel(player, hand, SWEEPING_EDGE);
-        int unbreakingLevel = getEnchantmentLevel(player, hand, UNBREAKING);
-        AtomicInteger counter = new AtomicInteger(1);
 
-        List<Entity> damageEntities = allEntities.stream()
+        allEntities.stream()
                 .filter(entity -> entity instanceof Enemy)
                 .filter(entity -> entity instanceof LivingEntity)
                 .filter(Entity::isAlive)
                 .filter(entity -> entity.distanceTo(player) < (30 + 15 * knockBackLevel))
-                .limit(10L * (1 + sweepingLevel)).toList();
-
-        damageEntities.forEach(
-                entity -> summonLightning(serverLevel, player, entity, hand)
-        );
-
-        int damageValue = damageEntities.size() / (unbreakingLevel + 1);
-
-        // Damage the item
-        stack.hurtAndBreak(damageValue, player,
-                p -> p.broadcastBreakEvent(EquipmentSlot.MAINHAND)
+                .limit(10L * (1 + sweepingLevel)).forEach(
+                entity -> {
+                    summonLightning(serverLevel, player, entity, hand);
+                    // Damage the item
+                    stack.hurtAndBreak(1, player,
+                            p -> p.broadcastBreakEvent(EquipmentSlot.MAINHAND)
+                    );
+                }
         );
 
         player.getCooldowns().addCooldown(this, 10);
@@ -96,13 +92,14 @@ public class EngulfingLightningItem extends SwordItem {
         float base = 5.0F;
         int enchantmentLevel = getEnchantmentLevel(player, hand, SHARPNESS);
         float maxHealth = (float) Objects.requireNonNull(((LivingEntity) entity).getAttribute(Attributes.MAX_HEALTH)).getValue();
-        int randInt = random.nextInt(5);
-        float damage = max(2 * (base + enchantmentLevel), (enchantmentLevel > randInt ? maxHealth / 3.0f : maxHealth / 6.0f));
+        int randInt = random.nextInt(8);
+        float damage = max(2 * (base + enchantmentLevel), (enchantmentLevel > randInt ? maxHealth / 10.0f : maxHealth / 20.0f));
         // Clear lightning damage
         lightning.setDamage(0);
         // Considered as player damage
+        entity.addTag(HURT_TAG);
         entity.hurt(player.damageSources().playerAttack(player), damage);
-
+        entity.removeTag(HURT_TAG);
         lightning.moveTo(entity.getX(), entity.getY(), entity.getZ());
         lightning.setCause((ServerPlayer) player);
         lightning.addTag(LIGHTNING_TAG);

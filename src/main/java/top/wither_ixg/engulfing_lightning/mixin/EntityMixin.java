@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static top.wither_ixg.engulfing_lightning.EngulfingLightningItem.LIGHTNING_TAG;
+import static top.wither_ixg.engulfing_lightning.items.EngulfingLightningItem.LIGHTNING_TAG;
 
 @Mixin(Entity.class)
 public class EntityMixin {

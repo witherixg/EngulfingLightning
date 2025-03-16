@@ -3,5 +3,6 @@
     "item.engulfing_lightning.music_disc_raiden_1": "Music Disc",
     "item.engulfing_lightning.music_disc_raiden_1.desc": "HOYO-MiX - Thunderings of the Merciless",
     "item.engulfing_lightning.music_disc_raiden_2": "Music Disc",
-    "item.engulfing_lightning.music_disc_raiden_2.desc": "HOYO-MiX - The Almighty Violet Thunder"
+    "item.engulfing_lightning.music_disc_raiden_2.desc": "HOYO-MiX - The Almighty Violet Thunder",
+    "enchantment.engulfing_lightning.magnetized": "Magnetized"
 }
