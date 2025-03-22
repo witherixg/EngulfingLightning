@@ -19,6 +19,7 @@ import java.util.*;
 import static java.lang.Math.*;
 import static net.minecraft.world.item.CreativeModeTabs.COMBAT;
 import static net.minecraft.world.item.enchantment.Enchantments.*;
+import static top.wither_ixg.engulfing_lightning.ELDamageSources.engulfingLightning;
 import static top.wither_ixg.engulfing_lightning.Main.LOGGER;
 import static top.wither_ixg.engulfing_lightning.event_handler.mod.CreativeTabHandler.add;
 
@@ -98,7 +99,7 @@ public class EngulfingLightningItem extends SwordItem {
         lightning.setDamage(0);
         // Considered as player damage
         entity.addTag(HURT_TAG);
-        entity.hurt(player.damageSources().playerAttack(player), damage);
+        entity.hurt(engulfingLightning(level, entity, player), damage);
         entity.removeTag(HURT_TAG);
         lightning.moveTo(entity.getX(), entity.getY(), entity.getZ());
         lightning.setCause((ServerPlayer) player);

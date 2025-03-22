@@ -25,6 +25,7 @@ public class MagnetizedHandler {
         assert player != null;
         event.getDrops().forEach(itemEntity -> {
             itemEntity.setPos(player.position());
+            itemEntity.setPickUpDelay(0);
             LOGGER.debug("Reset pos: {}", itemEntity);
         });
     }
