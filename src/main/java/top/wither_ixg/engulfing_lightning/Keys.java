@@ -6,6 +6,8 @@ public class Keys {
     public static final String RAIDEN_RECORD_ITEM_2_NAME = "music_disc_raiden_2";
 
     public static final String MAGNETIZED_ENCHANTMENT_NAME = "magnetized";
+    public static final String DESTROYING_ENCHANTMENT_NAME = "destroying";
+
 
 //    public static final String ENGULFING_LIGHTNING_DAMAGE_NAME = "engulfing_lightning_damage";
 }

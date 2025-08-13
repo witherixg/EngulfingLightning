@@ -68,7 +68,7 @@ public class ItemConvertingHandler {
                     itemEntity.setInvulnerable(true);
                     int magnetizedLevel = stack.getEnchantmentLevel(MAGNETIZED_ENCHANTMENT.get());
                     if (magnetizedLevel >= 1) return;
-                    stack.enchant(MAGNETIZED_ENCHANTMENT.get(), magnetizedLevel + 1);
+                    stack.enchant(MAGNETIZED_ENCHANTMENT.get(), 1);
                 });
 
     }

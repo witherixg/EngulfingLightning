@@ -19,6 +19,7 @@ import static net.minecraft.world.item.CreativeModeTabs.COMBAT;
 import static net.minecraft.world.item.enchantment.Enchantments.*;
 import static top.wither_ixg.engulfing_lightning.ELDamageSources.engulfingLightning;
 import static top.wither_ixg.engulfing_lightning.Main.LOGGER;
+import static top.wither_ixg.engulfing_lightning.event_handler.forge.AttackEntityHandler.attackCount;
 import static top.wither_ixg.engulfing_lightning.event_handler.mod.CreativeTabHandler.add;
 
 
@@ -28,11 +29,7 @@ public class EngulfingLightningItem extends SwordItem {
 
     public static final String LIGHTNING_TAG = "fromEngulfingLightning";
     public static final String HURT_TAG = "hurtByEngulfingLightning";
-
-    private static final Map<Entity, Integer> attackCount = new HashMap<>();
-
-    private static final Map<Entity, Integer> lastHurtTime = new HashMap<>();
-
+    public static final String LIGHTNING_VIA_USE = "lightningViaUse";
 
     public EngulfingLightningItem() {
         super(Tiers.NETHERITE, 3, -2.4F,
@@ -63,7 +60,7 @@ public class EngulfingLightningItem extends SwordItem {
                 .filter(entity -> entity.distanceTo(player) < (30 + 15 * knockBackLevel))
                 .limit(10L * (1 + sweepingLevel)).forEach(
                         entity -> {
-                            summonLightning(player, entity, sharpnessLevel);
+                            summonLightning(player, entity, sharpnessLevel, true);
                             // Damage the item
                             stack.hurtAndBreak(1, player,
                                     p -> p.broadcastBreakEvent(EquipmentSlot.MAINHAND)
@@ -80,32 +77,16 @@ public class EngulfingLightningItem extends SwordItem {
     @Override
     public boolean hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
         boolean result = super.hurtEnemy(stack, target, attacker);
-        int enchantmentLevel = stack.getEnchantmentLevel(SHARPNESS);
-
-        attackCount.putIfAbsent(target, 2);
-        int count = attackCount.get(target) + 1;
-
-        int hurtTime = target.getLastHurtByMobTimestamp();
-        lastHurtTime.putIfAbsent(target, hurtTime);
-
-        if (count == 3) {
-            summonLightning(attacker, target, enchantmentLevel);
-            attackCount.replace(target, 0);
-            lastHurtTime.replace(target, hurtTime);
-            LOGGER.debug("Summoned: 3 hits");
-        } else attackCount.replace(target, count);
-
-        int delta = hurtTime - lastHurtTime.get(target);
-        if (delta >= 50) {
-            summonLightning(attacker, target, enchantmentLevel);
-            attackCount.replace(target, 0);
-            lastHurtTime.replace(target, hurtTime);
-            LOGGER.debug("Summoned: cd ({} tick) > 2.5s", delta);
-        }
+        attackCount.replace(target, attackCount.get(target) + 1);
+        LOGGER.debug("{} attackCount: {}", target, attackCount.get(target));
         return result;
     }
 
-    private static void summonLightning(@NotNull Entity attacker, @NotNull Entity entity, int sharpnessLevel) {
+    public static void summonLightning(@NotNull Entity attacker, @NotNull Entity entity, int sharpnessLevel) {
+        summonLightning(attacker, entity, sharpnessLevel, false);
+    }
+
+    public static void summonLightning(@NotNull Entity attacker, @NotNull Entity entity, int sharpnessLevel, boolean viaUse) {
 
         ServerLevel level = (ServerLevel) attacker.level();
 
@@ -118,11 +99,14 @@ public class EngulfingLightningItem extends SwordItem {
         lightning.setDamage(0);
         // Considered as player damage
         entity.addTag(HURT_TAG);
+        if (viaUse) entity.addTag(LIGHTNING_VIA_USE);
         entity.hurt(engulfingLightning(level, entity, attacker), damage);
         entity.removeTag(HURT_TAG);
+        if (viaUse) entity.removeTag(LIGHTNING_VIA_USE);
         lightning.moveTo(entity.getX(), entity.getY(), entity.getZ());
         lightning.setCause((ServerPlayer) attacker);
         lightning.addTag(LIGHTNING_TAG);
         level.addFreshEntity(lightning);
     }
+
 }

@@ -6,6 +6,7 @@
   "refmap": "engulfing_lightning.refmap.json",
   "mixins": [
     "EntityMixin",
+    "ItemEntityMixin",
     "LightningBoltMixin"
   ],
   "client": [

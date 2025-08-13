@@ -4,8 +4,10 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import top.wither_ixg.engulfing_lightning.enchantments.DestroyingEnchantment;
 import top.wither_ixg.engulfing_lightning.enchantments.MagnetizedEnchantment;
 
+import static top.wither_ixg.engulfing_lightning.Keys.DESTROYING_ENCHANTMENT_NAME;
 import static top.wither_ixg.engulfing_lightning.Keys.MAGNETIZED_ENCHANTMENT_NAME;
 import static top.wither_ixg.engulfing_lightning.Main.MOD_ID;
 
@@ -18,5 +20,10 @@ public class EnchantmentRegister {
     public static final RegistryObject<Enchantment> MAGNETIZED_ENCHANTMENT =
             ENCHANTMENTS.register(MAGNETIZED_ENCHANTMENT_NAME,
                     MagnetizedEnchantment::new);
+
+
+    public static final RegistryObject<Enchantment> DESTROYING_ENCHANTMENT =
+            ENCHANTMENTS.register(DESTROYING_ENCHANTMENT_NAME,
+                    DestroyingEnchantment::new);
 
 }

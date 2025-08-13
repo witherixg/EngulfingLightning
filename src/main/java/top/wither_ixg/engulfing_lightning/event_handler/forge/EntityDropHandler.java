@@ -14,15 +14,16 @@ import net.minecraftforge.fml.common.Mod;
 import static net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus.FORGE;
 import static top.wither_ixg.engulfing_lightning.Main.LOGGER;
 import static top.wither_ixg.engulfing_lightning.items.EngulfingLightningItem.HURT_TAG;
+import static top.wither_ixg.engulfing_lightning.items.EngulfingLightningItem.LIGHTNING_VIA_USE;
 import static top.wither_ixg.engulfing_lightning.registers.EnchantmentRegister.MAGNETIZED_ENCHANTMENT;
 
 @Mod.EventBusSubscriber(bus = FORGE)
-public class MagnetizedHandler {
+public class EntityDropHandler {
     @SubscribeEvent
     public static void onLivingDrops(LivingDropsEvent event) {
         if (notMagnetized(event)) return;
+        if (event.getEntity().getTags().contains(LIGHTNING_VIA_USE)) return;
         Player player = (Player) event.getEntity().getLastAttacker();
-        assert player != null;
         event.getDrops().forEach(itemEntity -> {
             itemEntity.setPos(player.position());
             itemEntity.setPickUpDelay(0);
@@ -35,8 +36,6 @@ public class MagnetizedHandler {
         if (notMagnetized(event)) return;
         event.setCanceled(true);
         Player player = (Player) event.getEntity().getLastAttacker();
-
-        assert player != null;
         Level level = player.getCommandSenderWorld();
         level.addFreshEntity(new ExperienceOrb(
                 level,
