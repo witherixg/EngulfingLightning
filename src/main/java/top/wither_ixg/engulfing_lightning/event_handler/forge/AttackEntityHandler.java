@@ -5,12 +5,15 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.entity.PartEntity;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static net.minecraft.world.item.enchantment.Enchantments.SHARPNESS;
 import static net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus.FORGE;
@@ -30,11 +33,16 @@ public class AttackEntityHandler {
     public static void onAttackEntity(AttackEntityEvent event) {
         Player attacker = event.getEntity();
         Entity entity = event.getTarget();
+        if(entity instanceof PartEntity<?> part)
+            entity = part.getParent();
+
         if (!entity.isAlive()) return;
-        LivingEntity target = (LivingEntity) entity;
+
+        if(!(entity instanceof LivingEntity target)) return;
+
         Level level = attacker.level();
         if (level.isClientSide) return;
-        LOGGER.debug("{} attacked {}", attacker.getName(), target.getName());
+        LOGGER.debug("{} attacked {}(uuid: {})", attacker.getName(), target.getName(), target.getUUID());
         ItemStack stack = attacker.getMainHandItem();
         if (!stack.getItem().equals(ENGULFING_LIGHTNING_ITEM.get())) {
             return;
@@ -42,26 +50,32 @@ public class AttackEntityHandler {
 
         int enchantmentLevel = stack.getEnchantmentLevel(SHARPNESS);
 
-        attackCount.putIfAbsent(target, 2);
+        attackCount.putIfAbsent(target, 3);
         int count = attackCount.get(target);
 
         int hurtTime = target.getLastHurtByMobTimestamp();
         lastHurtTime.putIfAbsent(target, hurtTime);
+        int attackTime = target.tickCount;
 
-        if (count == 2) {
-            summonLightning(attacker, target, enchantmentLevel);
-            attackCount.replace(target, 0);
-            lastHurtTime.replace(target, hurtTime);
-            LOGGER.debug("Summoned: 3 hits");
-        }
-
-        int delta = target.tickCount - lastHurtTime.get(target);
+        int delta = attackTime - lastHurtTime.get(target);
         LOGGER.debug("delta: {}", delta);
-        if (delta >= 50) {
-            summonLightning(attacker, target, enchantmentLevel);
+
+        LOGGER.debug("delta: {}", delta);
+        if (count == 3 || delta >= 50) {
+            Objects.requireNonNull(level.getServer()).execute(() -> {
+                if (target.isAlive()) summonLightning(attacker, target, enchantmentLevel);
+            });
             attackCount.replace(target, 0);
-            lastHurtTime.replace(target, hurtTime);
-            LOGGER.debug("Summoned: cd ({} tick) > 2.5s", delta);
+            lastHurtTime.replace(target, attackTime);
+            if (count == 2) LOGGER.debug("Summoned: 3 hits");
+            if (delta >= 50) LOGGER.debug("Summoned: cd ({} tick) >= 2.5s", delta);
         }
+    }
+
+    @SubscribeEvent
+    public static void onEntityDeath(LivingDeathEvent event) {
+        Entity entity = event.getEntity();
+        attackCount.remove(entity);
+        lastHurtTime.remove(entity);
     }
 }

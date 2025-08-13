@@ -76,10 +76,9 @@ public class EngulfingLightningItem extends SwordItem {
 
     @Override
     public boolean hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
-        boolean result = super.hurtEnemy(stack, target, attacker);
-        attackCount.replace(target, attackCount.get(target) + 1);
+        attackCount.replace(target, attackCount.getOrDefault(target, 0) + 1);
         LOGGER.debug("{} attackCount: {}", target, attackCount.get(target));
-        return result;
+        return super.hurtEnemy(stack, target, attacker);
     }
 
     public static void summonLightning(@NotNull Entity attacker, @NotNull Entity entity, int sharpnessLevel) {
