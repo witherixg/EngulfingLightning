@@ -91,8 +91,8 @@ public class EngulfingLightningItem extends SwordItem {
         float currHealth = entity.getHealth();
         float damage = 2 * (base + 1.5f * sharpnessLevel);
 
-        if (currHealth <= maxHealth * lootingLevel / 10) {
-            damage *= 5;
+        if (currHealth <= maxHealth * lootingLevel / 8) {
+            damage *= 10;
         }
 
         // Clear lightning damage
