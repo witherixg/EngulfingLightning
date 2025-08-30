@@ -5,6 +5,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
+import top.wither_ixg.engulfing_lightning.items.CreativeTabList;
 
 import static top.wither_ixg.engulfing_lightning.registers.EnchantmentRegister.ENCHANTMENTS;
 import static top.wither_ixg.engulfing_lightning.registers.ItemRegister.ITEMS;
@@ -25,6 +26,7 @@ public class Main {
         ITEMS.register(bus);
         SOUND_EVENTS.register(bus);
         ENCHANTMENTS.register(bus);
+        CreativeTabList.init();
     }
 
 }

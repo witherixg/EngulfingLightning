@@ -1,14 +1,16 @@
 package top.wither_ixg.engulfing_lightning.items;
 
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static net.minecraft.world.item.CreativeModeTabs.COMBAT;
+import static net.minecraft.world.item.CreativeModeTabs.TOOLS_AND_UTILITIES;
+import static top.wither_ixg.engulfing_lightning.event_handler.mod.CreativeTabHandler.add;
+import static top.wither_ixg.engulfing_lightning.registers.ItemRegister.*;
+import static top.wither_ixg.engulfing_lightning.registers.ItemRegister.MUSIC_DISC_RAIDEN_1_ITEM;
+import static top.wither_ixg.engulfing_lightning.registers.ItemRegister.MUSIC_DISC_RAIDEN_2_ITEM;
 
 public class CreativeTabList {
-
+    public static void init(){
+        add(COMBAT, ENGULFING_LIGHTNING_ITEM.get());
+        add(TOOLS_AND_UTILITIES, MUSIC_DISC_RAIDEN_1_ITEM.get());
+        add(TOOLS_AND_UTILITIES, MUSIC_DISC_RAIDEN_2_ITEM.get());
+    }
 }
