@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static net.minecraft.world.item.enchantment.Enchantments.SHARPNESS;
 import static net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus.FORGE;
 import static top.wither_ixg.engulfing_lightning.Main.LOGGER;
 import static top.wither_ixg.engulfing_lightning.items.EngulfingLightningItem.summonLightning;
@@ -48,7 +47,6 @@ public class AttackEntityHandler {
             return;
         }
 
-        int enchantmentLevel = stack.getEnchantmentLevel(SHARPNESS);
 
         attackCount.putIfAbsent(target, 3);
         int count = attackCount.get(target);
@@ -63,7 +61,7 @@ public class AttackEntityHandler {
         LOGGER.debug("delta: {}", delta);
         if (count == 3 || delta >= 50) {
             Objects.requireNonNull(level.getServer()).execute(() -> {
-                if (target.isAlive()) summonLightning(attacker, target, enchantmentLevel);
+                if (target.isAlive()) summonLightning(attacker, target, stack, false);
             });
             attackCount.replace(target, 0);
             lastHurtTime.replace(target, attackTime);

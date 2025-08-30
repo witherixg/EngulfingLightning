@@ -7,10 +7,8 @@ import net.minecraftforge.registries.RegistryObject;
 import top.wither_ixg.engulfing_lightning.items.EngulfingLightningItem;
 import top.wither_ixg.engulfing_lightning.items.RaidenRecordItem;
 
-import static net.minecraft.world.item.CreativeModeTabs.COMBAT;
 import static top.wither_ixg.engulfing_lightning.Keys.*;
 import static top.wither_ixg.engulfing_lightning.Main.*;
-import static top.wither_ixg.engulfing_lightning.event_handler.mod.CreativeTabHandler.add;
 import static top.wither_ixg.engulfing_lightning.registers.SoundEventRegister.RAIDEN_1;
 import static top.wither_ixg.engulfing_lightning.registers.SoundEventRegister.RAIDEN_2;
 
@@ -32,6 +30,5 @@ public class ItemRegister {
     public static final RegistryObject<Item> MUSIC_DISC_RAIDEN_2_ITEM =
             ITEMS.register(RAIDEN_RECORD_ITEM_2_NAME,
                     () -> new RaidenRecordItem(RAIDEN_2, 209*20));
-
 
 }

@@ -14,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static java.lang.Math.*;
 import static net.minecraft.world.item.CreativeModeTabs.COMBAT;
 import static net.minecraft.world.item.enchantment.Enchantments.*;
 import static top.wither_ixg.engulfing_lightning.ELDamageSources.engulfingLightning;
@@ -25,8 +24,6 @@ import static top.wither_ixg.engulfing_lightning.event_handler.mod.CreativeTabHa
 
 public class EngulfingLightningItem extends SwordItem {
 
-    private static final Random random = new Random();
-
     public static final String LIGHTNING_TAG = "fromEngulfingLightning";
     public static final String HURT_TAG = "hurtByEngulfingLightning";
     public static final String LIGHTNING_VIA_USE = "lightningViaUse";
@@ -34,6 +31,7 @@ public class EngulfingLightningItem extends SwordItem {
     public EngulfingLightningItem() {
         super(Tiers.NETHERITE, 3, -2.4F,
                 (new Properties()).fireResistant().rarity(Rarity.EPIC));
+
         add(COMBAT, this);
     }
 
@@ -51,7 +49,6 @@ public class EngulfingLightningItem extends SwordItem {
 
         int knockBackLevel = stack.getEnchantmentLevel(KNOCKBACK);
         int sweepingLevel = stack.getEnchantmentLevel(SWEEPING_EDGE);
-        int sharpnessLevel = stack.getEnchantmentLevel(SHARPNESS);
 
         allEntities.stream()
                 .filter(entity -> entity instanceof Enemy)
@@ -60,7 +57,7 @@ public class EngulfingLightningItem extends SwordItem {
                 .filter(entity -> entity.distanceTo(player) < (30 + 15 * knockBackLevel))
                 .limit(10L * (1 + sweepingLevel)).forEach(
                         entity -> {
-                            summonLightning(player, entity, sharpnessLevel, true);
+                            summonLightning(player, (LivingEntity) entity, stack, true);
                             // Damage the item
                             stack.hurtAndBreak(1, player,
                                     p -> p.broadcastBreakEvent(EquipmentSlot.MAINHAND)
@@ -81,19 +78,23 @@ public class EngulfingLightningItem extends SwordItem {
         return super.hurtEnemy(stack, target, attacker);
     }
 
-    public static void summonLightning(@NotNull Entity attacker, @NotNull Entity entity, int sharpnessLevel) {
-        summonLightning(attacker, entity, sharpnessLevel, false);
-    }
-
-    public static void summonLightning(@NotNull Entity attacker, @NotNull Entity entity, int sharpnessLevel, boolean viaUse) {
+    public static void summonLightning(@NotNull Entity attacker, @NotNull LivingEntity entity, ItemStack stack, boolean viaUse) {
 
         ServerLevel level = (ServerLevel) attacker.level();
 
+        int sharpnessLevel = stack.getEnchantmentLevel(SHARPNESS);
+        int lootingLevel = stack.getEnchantmentLevel(MOB_LOOTING);
+
         LightningBolt lightning = new LightningBolt(EntityType.LIGHTNING_BOLT, level);
         float base = 5.0F;
-        float maxHealth = (float) Objects.requireNonNull(((LivingEntity) entity).getAttribute(Attributes.MAX_HEALTH)).getValue();
-        int randInt = random.nextInt(8);
-        float damage = max(2 * (base + 1.5f * sharpnessLevel), (sharpnessLevel > randInt ? maxHealth / 10.0f : maxHealth / 20.0f));
+        float maxHealth = (float) Objects.requireNonNull(entity.getAttribute(Attributes.MAX_HEALTH)).getValue();
+        float currHealth = entity.getHealth();
+        float damage = 2 * (base + 1.5f * sharpnessLevel);
+
+        if (currHealth <= maxHealth * lootingLevel / 10) {
+            damage *= 5;
+        }
+
         // Clear lightning damage
         lightning.setDamage(0);
         // Considered as player damage
